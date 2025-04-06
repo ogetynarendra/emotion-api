@@ -4,7 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# Allow access from other apps (like your Java backend)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -12,8 +11,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load ML model (lighter one to fit in 512MB Render limit)
-classifier = pipeline("text-classification", model="prajjwal1/bert-tiny", return_all_scores=False)
+# Load a small but emotion-specific model
+classifier = pipeline("text2text-generation", model="mrm8488/t5-base-finetuned-emotion")
 
 @app.post("/detect-emotion")
 async def detect_emotion(request: Request):
@@ -21,5 +20,6 @@ async def detect_emotion(request: Request):
     text = data.get("text", "")
     if not text:
         return {"error": "No text provided"}
-    result = classifier(text)
-    return {"emotion": result[0]["label"]}
+    result = classifier(f"emotion: {text}")
+    emotion = result[0]["generated_text"]
+    return {"emotion": emotion}

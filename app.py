@@ -12,8 +12,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load ML model
-classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", return_all_scores=False)
+# Load ML model (lighter one to fit in 512MB Render limit)
+classifier = pipeline("text-classification", model="prajjwal1/bert-tiny", return_all_scores=False)
 
 @app.post("/detect-emotion")
 async def detect_emotion(request: Request):
